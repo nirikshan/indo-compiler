@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>render function</title>
+   <script type="text/javascript" src="compiler/lex.js"></script>
+   <script type="text/javascript" src="compiler/parser.js"></script>
+</head>
+<body>
+	<div id="root"></div>
+</body>
+<script>
+
+    var value = `    
+    <ul id='main'>
+      <li class='my-list'>
+            <h1>{a.name} -  {a.id}</h1> 
+            <ul>
+                <li>
+                 <b>{c.id}  {c.type}</b>  
+                </li>
+            </ul>
+        </li>
+    </ul>   `
+
+   applier = function(value) {
+      return(parser(lexical_analysis(value)));
+    },
+
+    Mygenerator = function Mygenerator(a) {
+        var j, b = a.children[0];
+        looper(b)
+    },
+    
+    syntax = function syntax(type , props , child , state) {
+      var childTree = [];
+      if(Array.isArray(child)){
+        for (var index = 0; index < child.length; index++) {
+            var ele = child[index];
+            if(typeof(ele) === 'object'){
+                childTree.push(converter(ele , state));    
+            }
+        }
+      }
+      var DispachChild = childTree;
+      return 'm("'+type+'",'+JSON.stringify(props)+','+JSON.stringify(DispachChild)+')';    
+    },
+
+    converter = function converter(x , j) {
+        var syn = syntax(x.type , x.props , x.children , j);
+        j.store.push(syn)
+    },
+
+    looper = function looper(a) {
+        var children = a.children,
+            states   = {
+                store:[]
+            }
+        for (var index = 0; index < children.length; index++) {
+            var ele = children[index];
+            if(typeof(ele) == 'object'){
+                converter(ele , states);
+                looper(ele)
+            }
+        }
+        console.log(states)
+    }
+
+   var AST = applier(value);//Ast of HTML //this need to be converted to render function
+   console.log(AST)//you can see AST generated here
+   var datax = Mygenerator(AST)//trying to generate render function //my try
+
+//console.log(datax)
+
+//render Function:-
+//
+//
+// render(
+//   "ul",
+//   { id: "main" },
+//   render(
+//     "li",
+//     { class: "my-list" },
+//     render("h1", null, a.name, " -  ", a.id),
+//     render(
+//       "ul",
+//       null,
+//       render(
+//         "li",
+//         null,
+//         render("b", null, c.id, "  ", c.type)
+//       )
+//     )
+//   )
+// );
+//
+//
+//
+//html that need to be converted to render functions:-
+//
+// <ul id='main'>
+//       <li class='my-list'>
+//             <h1>{a.name} -  {a.id}</h1> 
+//             <ul>
+//                 <li>
+//                  <b>{c.id}  {c.type}</b>  
+//                 </li>
+//             </ul>
+//         </li>
+//     </ul> 
+
+
+
+
+
+   
+</script>
+</html>
