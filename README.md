@@ -17,8 +17,9 @@ HTML:--
 ```
    
    
-AST:-
+##AST:-
 
+```bash
 {
 	"type": "root",
 	"children": ["    \n    ", {
@@ -59,11 +60,11 @@ AST:-
 		}, "\n    "]
 	}, "   "]
 }
+```
 
+##Render Function:-
 
-Render Function:-
-
-
+```
 render(
   "ul",
   { id: "main" },
@@ -82,4 +83,4 @@ render(
     )
   )
 );
- 
+``` 
