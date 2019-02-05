@@ -3,7 +3,7 @@
 
 HTML:--
 
-
+```bash
    <ul id='main'>
       <li class='my-list'>
             <h1>{a.name} -  {a.id}</h1> 
@@ -14,7 +14,9 @@ HTML:--
             </ul>
         </li>
     </ul> 
-    
+```
+   
+   
 AST:-
 
 {
