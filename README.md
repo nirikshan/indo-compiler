@@ -3,7 +3,7 @@
 
 HTML:--
 
-```bash
+```html
    <ul id='main'>
       <li class='my-list'>
             <h1>{a.name} -  {a.id}</h1> 
