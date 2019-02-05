@@ -1,4 +1,4 @@
-# ASTtoRenderFunction For Indo-Compiler
+# AST to RenderFunction For Indo-Compiler
 
 
 HTML:--
