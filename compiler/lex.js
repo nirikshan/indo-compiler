@@ -5,11 +5,8 @@ var lexical_analysis = function(template){
         tokens : [],
         current : 0
     };
-
     lex_state(state);
-    //(' lex : ', state.tokens);
     return state.tokens;
-
 }
 
 
@@ -19,23 +16,14 @@ function lex_state(state){
         len = state.str.length;
 
     while(state.current < len){
-
-        // it is text
         if(str.charAt(state.current) !== "<"){
-
             get_text(state);
             continue;
-
         }
-
-        // it is comment
         if(str.substr(state.current, 4) == "<!--"){
-
             get_comment(state);
             continue;
         }
-
-        // its a tag
         get_tag(state);
     }
 }
@@ -76,7 +64,7 @@ function get_text(state){
 
 function get_comment(state){
 
-    var current = state.current+4,  // skip "<!--"
+    var current = state.current+4,  
         str = state.str,
         len = state.str.length;
 
@@ -127,9 +115,6 @@ function get_tag(state){
     if(is_tag_self_closing){
         tag_token.tag_self_closing = true;
     }
-
-    //('done with get tag ');
-
 }
 
 function get_tag_name(state){
@@ -193,18 +178,9 @@ function get_tag_attributes(tag_token, state){
             attribute_name+=char;
             increment();
         }
-
-        // skip "="
+        
         increment();
-
-        var attribute_value = {
-            name : attribute_name,
-            value : '',
-            meta : {}
-        };
-
-        //(attribute_name, no_value_in_tag, char);
-
+        var attribute_value = '';
         if(no_value_in_tag){
             attributes[attribute_name] = attribute_value;
             continue;
@@ -221,16 +197,12 @@ function get_tag_attributes(tag_token, state){
 
         while( current < len && char !== quote_type){
 
-            attribute_value.value += char;
+            attribute_value += char;
             increment();
 
         }
-
-        //(' val : ', attribute_value.value, quote_type);
-
-        //skip quote end
         increment();
-
+        
         var dot_index = attribute_name.indexOf(":");
         if(dot_index !== -1){
             var temp = attribute_name.split(":");
@@ -239,25 +211,7 @@ function get_tag_attributes(tag_token, state){
         }
         attributes[attribute_name] = attribute_value;
     }
-
-    //(' att ', attributes);
-
+    
     state.current = current;
     tag_token.attributes = attributes;
-
 }
-
-
-
-
-
-// var str = `<p title="xk" id="this is id" m-on:click="test()">
-//   <!-- thsi is comment test -->
-//     <h1> Hello </h1>
-//   <span id="span_1"></span>
-// <span id="span_2"></span>
-// <img src="tet.img" />
-//       </p>
-//     <div id="div_test"></div>
-//     <div></div>`;
-// lexical_analysis(str);
