@@ -21,44 +21,60 @@ HTML:--
 
 ```bash
 {
-	"type": "root",
-	"children": ["    \n    ", {
-		"type": "ul",
-		"props": {
-			"id": {
-				"name": "id",
-				"value": "main",
-				"meta": {}
-			}
-		},
-		"children": ["\n      ", {
-			"type": "li",
-			"props": {
-				"class": {
-					"name": "class",
-					"value": "my-list",
-					"meta": {}
-				}
-			},
-			"children": ["\n            ", {
-				"type": "h1",
-				"props": {},
-				"children": ["{a.name} -  {a.id}"]
-			}, " \n            ", {
-				"type": "ul",
-				"props": {},
-				"children": ["\n                ", {
-					"type": "li",
-					"props": {},
-					"children": ["\n                 ", {
-						"type": "b",
-						"props": {},
-						"children": ["{c.id}  {c.type}"]
-					}, "  \n                "]
-				}, "\n            "]
-			}, "\n        "]
-		}, "\n    "]
-	}, "   "]
+   "type":"root",
+   "children":[
+      {
+         "type":"ul",
+         "props":{
+            "id":"main",
+            "class":"mainList"
+         },
+         "children":[
+            {
+               "type":"li",
+               "props":{
+                  "class":"my-list"
+               },
+               "children":[
+                  {
+                     "type":"h1",
+                     "props":{
+
+                     },
+                     "children":[
+                        "{a.name} -  {a.id}"
+                     ]
+                  },
+                  {
+                     "type":"ul",
+                     "props":{
+
+                     },
+                     "children":[
+                        {
+                           "type":"li",
+                           "props":{
+
+                           },
+                           "children":[
+                              {
+                                 "type":"b",
+                                 "props":{
+
+                                 },
+                                 "children":[
+                                    "{c.id}  {c.type}"
+                                 ]
+                              }
+                           ]
+                        }
+                     ]
+                  }
+               ]
+            }
+         ]
+      }
+   ]
 }
 ```
 
