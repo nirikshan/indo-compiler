@@ -24,52 +24,51 @@
     </ul>   `
 
    applier = function(value) {
-      return(parser(lexical_analysis(value)));
+        var alldata = lexical_analysis(value);
+        alldata.forEach((el , ind )=> {
+            if(el.type == 'text' && el.value.trim().length > 0){
+                // var splits = cs(alldata[ind].value);
+                // alldata.splice(ind, 1);
+                // splits.forEach((sp , indx) => {
+                //     var replacer = Neww(sp);
+                //     alldata.splice((ind + indx), 0, replacer );
+                // });
+            }else if(el.type == 'text' && el.value.trim().length <= 0){
+              alldata.splice(ind , 1)
+            }  
+        });  
+        return(parser(alldata));
     },
 
     Mygenerator = function Mygenerator(a) {
-        var j, b = a.children[0];
-        looper(b)
+        return GenerateRenderFunction(a);
     },
     
-    syntax = function syntax(type , props , child , state) {
-      var childTree = [];
-      if(Array.isArray(child)){
-        for (var index = 0; index < child.length; index++) {
-            var ele = child[index];
-            if(typeof(ele) === 'object'){
-                childTree.push(converter(ele , state));    
-            }
-        }
-      }
-      var DispachChild = childTree;
-      return 'm("'+type+'",'+JSON.stringify(props)+','+JSON.stringify(DispachChild)+')';    
+    syntax = function syntax(type , props , child) {
+      return 'm("'+type+'",'+JSON.stringify(props)+','+(child)+')';    
     },
 
-    converter = function converter(x , j) {
-        var syn = syntax(x.type , x.props , x.children , j);
-        j.store.push(syn)
-    },
-
-    looper = function looper(a) {
-        var children = a.children,
-            states   = {
-                store:[]
+    GenerateRenderFunction = function GenerateRenderFunction(x) {
+        var store         = [];
+        if(typeof(x) == 'object'){
+            var children  = x.children;
+            for (let i = 0; i < children.length; i++) {
+                var el = children[i];
+                data = GenerateRenderFunction(el);
+                store.push(syntax(el.type , el.props , data))
             }
-        for (var index = 0; index < children.length; index++) {
-            var ele = children[index];
-            if(typeof(ele) == 'object'){
-                converter(ele , states);
-                looper(ele)
-            }
+        }else{
+            store.push(x)
         }
-        console.log(states)
+        
+        return(store);
     }
 
-   var AST = applier(value);//Ast of HTML //this need to be converted to render function
-   console.log(AST)//you can see AST generated here
-   var datax = Mygenerator(AST)//trying to generate render function //my try
+    
 
+   var AST = applier(value);//Ast of HTML //this need to be converted to render function
+   var datax = Mygenerator(AST)//trying to generate render function //my try
+console.log(datax[0])
 //console.log(datax)
 
 //render Function:-
