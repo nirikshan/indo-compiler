@@ -12,7 +12,7 @@
 <script>
 
     var value = `    
-    <ul id='main'>
+    <ul id='main' class='mainList'>
       <li class='my-list'>
             <h1>{a.name} -  {a.id}</h1> 
             <ul>
@@ -53,9 +53,10 @@
         if(typeof(x) == 'object'){
             var children  = x.children;
             for (let i = 0; i < children.length; i++) {
-                var el = children[i];
-                data = GenerateRenderFunction(el);
-                store.push(syntax(el.type , el.props , data))
+                var el     =  children[i],
+                    data   =  GenerateRenderFunction(el),
+                    synt = el.type !== undefined && el.props !== undefined ? syntax(el.type , el.props , data) : data;
+                    store.push(synt)
             }
         }else{
             store.push(x)
@@ -68,7 +69,7 @@
 
    var AST = applier(value);//Ast of HTML //this need to be converted to render function
    var datax = Mygenerator(AST)//trying to generate render function //my try
-console.log(datax[0])
+   console.log(datax[0])
 //console.log(datax)
 
 //render Function:-
