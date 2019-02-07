@@ -125,7 +125,8 @@ m("ul",
 ```
 #Working For c-loop directive (c-loop='data>>c'):-
 
-```m("ul",
+```
+ m("ul",
    {"id": "main", "class": "mainList"},
    m("li", 
      {"class": "my-list"}, 
