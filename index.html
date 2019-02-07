@@ -14,25 +14,68 @@
     var value = `    
     <ul id='main' class='mainList'>
       <li class='my-list'>
-            <h1>{a.name} -  {a.id}</h1> 
+            <h1>{a.name} - and okkz  {a.id}</h1> 
             <ul>
                 <li>
-                 <b>{c.id}  {c.type}</b>  
+                 <b>{c.id} sdsd {c.type} sdsdf {name} dasssss asdddddddd</b>  
                 </li>
             </ul>
         </li>
-    </ul>   `
+    </ul>`;
 
-   applier = function(value) {
+    var bt = function(name) {
+       return (/\{(.*)\}/.test(name))
+    },
+    cs = function(a, n, b, u) {
+        var d = [],
+            le = a.length,
+            pos = le,
+            init = 0;
+        for (var i = init; i < pos; i++) {
+            var start = a.indexOf('{'),
+                end = a.indexOf('}');
+            if (start !== -1) {
+                var k = a.substr(init, start),
+                    k = quot(k);
+                    d.push(k)
+
+                var k1 = a.substr(start, (end + 1) - start + 1),
+                    k1 = quot(k1)
+                d.push(k1)
+            } else {
+                var k = a.substr(0, le),
+                    k = quot(k);
+                    
+                d.push(k)
+                break
+            }
+            var a = a.substr(end + 2, le)
+        }
+        var d = d.filter(item => item.trim() !== '');
+        return (d)
+    },
+    Neww= function(val) {
+      return { type:"text",value:val}  
+    },
+    quot = function(k) {
+        if(!bt(k)){
+            if(k.indexOf('"') == -1){
+               k = k.trim().length > 0 ? '"'+k+'"' : k;   
+            }
+        }
+        //.replace(/}|{/g, '')
+        return(k);
+    },
+    applier = function(value) {
         var alldata = lexical_analysis(value);
         alldata.forEach((el , ind )=> {
             if(el.type == 'text' && el.value.trim().length > 0){
-                // var splits = cs(alldata[ind].value);
-                // alldata.splice(ind, 1);
-                // splits.forEach((sp , indx) => {
-                //     var replacer = Neww(sp);
-                //     alldata.splice((ind + indx), 0, replacer );
-                // });
+                var splits = cs(alldata[ind].value);
+                alldata.splice(ind, 1);
+                splits.forEach((sp , indx) => {
+                    var replacer = Neww(sp);
+                    alldata.splice((ind + indx), 0, replacer );
+                });
             }else if(el.type == 'text' && el.value.trim().length <= 0){
               alldata.splice(ind , 1)
             }  
