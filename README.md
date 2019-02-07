@@ -1,4 +1,4 @@
-# AST to RenderFunction For Indo-Compiler
+# Indo-Compiler
 
 
 HTML:--
@@ -78,7 +78,7 @@ HTML:--
 }
 ```
 
-##Render Function:-
+#Type of Render Function I am trying to get :-
 
 ```
 render(
@@ -94,9 +94,33 @@ render(
       render(
         "li",
         null,
-        render("b", null, c.id, "  ", c.type)
+        render("b", null, c.id, "a ", c.type,"sss")
       )
     )
   )
 );
 ``` 
+
+#My output:-
+
+```
+m("ul",
+   {"id": "main", "class": "mainList"},
+   m("li", 
+     {"class": "my-list"}, 
+     m("h1",
+      {},
+      {a.name},
+      "-", 
+      {a.id}),
+           m("ul",
+             {},
+              m("li",
+               {},
+               m("b", {} , {c.id}, "a ",{c.type}, "sss")
+              )
+           )
+       )
+    )
+```
+Problem: - I am getting }{ symbol in text place parameter please compare  (My output) and (Type of Render Function I am trying to get) for clear understanding of problem. 
