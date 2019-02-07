@@ -1,4 +1,4 @@
-# Indo-Compiler
+# Indo-Compiler For Click.js
 
 
 HTML:--
@@ -123,4 +123,27 @@ m("ul",
        )
     )
 ```
-Problem: - I am getting }{ symbol in text place parameter please compare  (My output) and (Type of Render Function I am trying to get) for clear understanding of problem. 
+#Working For c-loop directive (c-loop='data>>c'):-
+
+```m("ul",
+   {"id": "main", "class": "mainList"},
+   m("li", 
+     {"class": "my-list"}, 
+     m("h1",
+      {},
+      {a.name},
+      "-", 
+      {a.id}),
+           m("ul",
+             {},
+             data.forEach(function(c){
+                   return m("li",
+                            {},
+                            m("b", {} , {c.id}, "a ",{c.type}, "sss")
+                           )
+             })
+           )
+       )
+    )
+ 
+```
