@@ -81,20 +81,20 @@ HTML:--
 #Type of Render Function I am trying to get :-
 
 ```
-render(
+m(
   "ul",
   { id: "main" },
-  render(
+    m(
     "li",
     { class: "my-list" },
     render("h1", null, a.name, " -  ", a.id),
-    render(
+      m(
       "ul",
-      null,
-      render(
+      {},
+        m(
         "li",
-        null,
-        render("b", null, c.id, "a ", c.type,"sss")
+        {},
+        m("b", null, c.id, "a ", c.type,"sss")
       )
     )
   )
