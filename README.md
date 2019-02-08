@@ -123,7 +123,7 @@ m("ul",
        )
     )
 ```
-#Working For c-loop directive (c-loop='data>>c'):-
+#c-loop directive (c-loop='data>>c'):-
 
 ```
  m("ul",
@@ -148,3 +148,6 @@ m("ul",
     )
  
 ```
+
+Now I am working to maintain scope for example:-
+adding (_. ie. name to _.name ) in fromt of global state and avoiding (_. ie. a.name to a.name if it is loop state ) in front of loop scope 
