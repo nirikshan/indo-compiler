@@ -150,4 +150,4 @@ m("ul",
 ```
 
 Now I am working to maintain scope for example:-
-adding (_. ie. name to _.name ) in fromt of global state and avoiding (_. ie. a.name to a.name if it is loop state ) in front of loop scope 
+adding (_. ie. name to _.name ) in fromt of global state and avoiding (_. ie. a.name to a.name if it is state inside loop) in front of loop scope 
