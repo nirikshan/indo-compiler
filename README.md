@@ -149,5 +149,21 @@ m("ul",
  
 ```
 
-Now I am working to maintain scope for example:-
-adding (_. ie. name to _.name ) in fromt of global state and avoiding (_. ie. a.name to a.name if it is state inside loop) in front of loop scope 
+Now I am working to maintain scope variable in loop in prefix for example:-
+
+```
+     data.map(a=>{
+        a.data.map(a=>{
+        
+        })
+     })
+     
+     to 
+     
+     _.data.map(a=>{
+        a.data.map(a=>{ //not here because it use the variable dispached by parent loop
+         
+        })
+     })
+     
+ ```
