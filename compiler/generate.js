@@ -60,7 +60,7 @@ var bt = function(name) {
      return 'c("'+type+'",'+JSON.stringify(props)+','+DispachChild+')';   
  },
  GenerateNode = function GenerateNode(tree , state) {
-         var RenderFunction  = 'c("'+tree.type+'",',
+         var RenderFunction  = 'h("'+tree.type+'",',
              Props           = tree.props,
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? JSON.stringify(Props) : null,
@@ -68,7 +68,7 @@ var bt = function(name) {
          
          if(Keys.indexOf('c-loop') !== -1){
                  var AttrVal = Props['c-loop'].split('>>');
-                 var Loopchild = 'return '+AttrVal[0]+`.map(`+AttrVal[1]+`=>{${GenerateNode(tree.children[0] , {loop:true , exp:AttrVal})}})`;
+                 var Loopchild = AttrVal[0]+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , {loop:true , exp:AttrVal})}})`;
                  delete Props['c-loop'];
                  return(GenerateSyntax(tree.type , tree.props , Loopchild))
          }
@@ -89,11 +89,9 @@ var bt = function(name) {
                            var ele = ele.replace(/}|{/g, '');
                            if(state.loop){
                                 var exps = state.exp;
-                               // console.log(ele ,exps[exps.length - 1]+'.' , ele.indexOf(exps[exps.length - 1]+'.') )
-                                if(ele.indexOf(exps[0]+'.') !== -1){
-                                  //  console.log(ele ,)
-                                  // var ele = '_.'+ele;
-                                }
+                               if(ele.indexOf(exps[1]+'.') == -1){
+                                    var ele = '_.'+ele;
+                                 }
                            }else{
                                var ele = '_.'+ele;
                            }
