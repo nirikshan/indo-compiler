@@ -53,8 +53,9 @@ var bt = function(name) {
      return(parser(alldata));
  },
  Generate = function Mygenerator(a) {
-     var AST = applier(value);
-     return GenerateNode(AST.children[0] , {loop:false});
+     var AST            =  applier(value),
+         RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
+     return('function(_){return('+RenderFunction+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild) {
      return 'c("'+type+'",'+JSON.stringify(props)+','+DispachChild+')';   
@@ -67,8 +68,12 @@ var bt = function(name) {
              RenderFunction  = RenderFunction + PropsRoot;
          
          if(Keys.indexOf('c-loop') !== -1){
-                 var AttrVal = Props['c-loop'].split('>>');
-                 var Loopchild = AttrVal[0]+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , {loop:true , exp:AttrVal})}})`;
+                 var AttrVal    = Props['c-loop'].split('>>'),
+                     LoopPrefix = AttrVal[0];
+                 if(!state.loop){
+                    var LoopPrefix = '_.'+LoopPrefix;
+                 }
+                 var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , {loop:true , exp:AttrVal})}})`;
                  delete Props['c-loop'];
                  return(GenerateSyntax(tree.type , tree.props , Loopchild))
          }
