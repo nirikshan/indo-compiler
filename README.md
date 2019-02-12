@@ -101,7 +101,7 @@ m(
 );
 ``` 
 
-#My output:-
+# My output:-
 
 ```
 m("ul",
@@ -123,7 +123,7 @@ m("ul",
        )
     )
 ```
-#c-loop directive (c-loop='data>>c'):-
+# c-loop directive (c-loop='data>>c'):-
 
 ```
  m("ul",
@@ -149,7 +149,7 @@ m("ul",
  
 ```
 
-#Maintain scope variable in loop in prefix for example:-
+# Maintained state scope in loop prefix :
 
 ```
      data.map(a=>{
