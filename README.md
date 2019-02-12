@@ -149,7 +149,7 @@ m("ul",
  
 ```
 
-Now I am working to maintain scope variable in loop in prefix for example:-
+#Maintain scope variable in loop in prefix for example:-
 
 ```
      data.map(a=>{
