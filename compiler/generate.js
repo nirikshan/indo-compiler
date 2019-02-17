@@ -76,16 +76,22 @@ var bt = function(name) {
     return tokens.join('+');
  },
  ParsePropsUpdatable = function ParsePropsUpdatable(props , keys) {
-   for (var j = 0; j < keys.length; j++) {
-         var el = keys[j],
-             le = props[el];
+//    for (var j = 0; j < keys.length; j++) {
+//          var el = keys[j],
+//              le = props[el];
             
-            if(bt(le)){
-                var parse = parseTextExp(le);
-                props[el] = parse;
-            }
-   }
+//             if(bt(le)){
+//                 var parse = parseTextExp(le);
+//                 props[el] = parse;
+//             }
+//    }
    return(props)
+ },
+ CheckScope = function CheckScope(state , ele){
+    var exps = state.exp;
+    if(ele.indexOf(exps[1]+'.') == -1){
+         //CheckScope(state , ele)
+    }
  },
  GenerateNode = function GenerateNode(tree , state) {
          var RenderFunction  = 'h("'+tree.type+'",',
@@ -101,7 +107,9 @@ var bt = function(name) {
                  if(!state.loop){
                     var LoopPrefix = '_.'+LoopPrefix;
                  }
-                 var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , {loop:true , exp:AttrVal})}})`;
+                 var NewState = {loop:true , exp:AttrVal , child:[]};
+                 NewState.child.push(state)
+                 var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , NewState)}})`;
                  delete Props['c-loop'];
                  return(GenerateSyntax(tree.type , tree.props , Loopchild))
          }
@@ -122,9 +130,10 @@ var bt = function(name) {
                            var ele = ele.replace(/}|{/g, '');
                            if(state.loop){
                                 var exps = state.exp;
-                               if(ele.indexOf(exps[1]+'.') == -1){
+                                CheckScope(state , ele)
+                                if(ele.indexOf(exps[1]+'.') == -1){
                                     var ele = '_.'+ele;
-                                 }
+                                }
                            }else{
                                var ele = '_.'+ele;
                            }
