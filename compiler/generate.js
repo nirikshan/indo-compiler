@@ -44,7 +44,7 @@ var bt = function(name) {
              alldata.splice(ind, 1);
              splits.forEach((sp , indx) => {
                  var replacer = Neww(sp);
-                 alldata.splice((ind + indx), 0, replacer );
+                 alldata.splice((ind + indx), 0, replacer);
              });
          }else if(el.type == 'text' && el.value.trim().length <= 0){
            alldata.splice(ind , 1)
@@ -52,19 +52,47 @@ var bt = function(name) {
      });  
      return(parser(alldata));
  },
- Generate = function Mygenerator(a) {
+ Generate = function Mygenerator(value) {
      var AST            =  applier(value),
          RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
-     return('function(_){return('+RenderFunction+')}');
+     return('function(_ , h ){return('+RenderFunction+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild) {
-     return 'c("'+type+'",'+JSON.stringify(props)+','+DispachChild+')';   
+     return 'h("'+type+'",'+JSON.stringify(props)+','+DispachChild+')';   
+ },
+ parseTextExp = function(text) {
+    var regText = /\{(.+?)\}/g;
+    var pieces = text.split(regText);
+    var matches = text.match(regText);
+    var tokens = [];
+    pieces.forEach(function (piece) {
+        if (matches && matches.indexOf('{' + piece + '}') > -1) {
+            tokens.push(piece);
+        } else if (piece) {
+            tokens.push('"' + piece + '"');
+        }
+    });
+    console.log(tokens.join('+'))
+    return tokens.join('+');
+ },
+ ParsePropsUpdatable = function ParsePropsUpdatable(props , keys) {
+   for (var j = 0; j < keys.length; j++) {
+         var el = keys[j],
+             le = props[el];
+            
+            if(bt(le)){
+                var parse = parseTextExp(le);
+                props[el] = parse;
+            }
+   }
+   return(props)
  },
  GenerateNode = function GenerateNode(tree , state) {
          var RenderFunction  = 'h("'+tree.type+'",',
              Props           = tree.props,
              Keys            = Object.keys(Props),
-             PropsRoot       = Props !== undefined ? JSON.stringify(Props) : null,
+             Props           = ParsePropsUpdatable(Props , Keys),
+             PropsRoot       = Props !== undefined ? JSON.stringify(Props) : null;
              RenderFunction  = RenderFunction + PropsRoot;
          
          if(Keys.indexOf('c-loop') !== -1){
