@@ -89,9 +89,17 @@ var bt = function(name) {
  },
  CheckScope = function CheckScope(state , ele){
     var exps = state.exp;
-    if(ele.indexOf(exps[1]+'.') == -1){
-         //CheckScope(state , ele)
+    if(ele.indexOf(exps[1]+'.') !== -1){
+         return true;
+    }else{
+        if(state.child){
+            var NewState = state.child;
+            if(NewState[0].loop){
+                return( CheckScope(NewState[0] , ele));
+            }
+        }
     }
+    return(false);
  },
  GenerateNode = function GenerateNode(tree , state) {
          var RenderFunction  = 'h("'+tree.type+'",',
@@ -130,8 +138,9 @@ var bt = function(name) {
                            var ele = ele.replace(/}|{/g, '');
                            if(state.loop){
                                 var exps = state.exp;
-                                CheckScope(state , ele)
-                                if(ele.indexOf(exps[1]+'.') == -1){
+                                //console.log(ele.indexOf(exps[1]+'.') == -1 , exps , ele , !CheckScope(state , ele))
+                                //if(ele.indexOf(exps[1]+'.') == -1 ){
+                                if(!CheckScope(state , ele)){
                                     var ele = '_.'+ele;
                                 }
                            }else{
