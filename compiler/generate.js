@@ -57,16 +57,19 @@ var bt = function(name) {
          RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
      return('function(_ , h ){return('+RenderFunction+')}');
  },
- GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys) {
-     return 'h("'+type+'",'+ParsePropsUpdatable(props , Keys)+','+DispachChild+')';   
+ GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys , state) {
+     return 'h("'+type+'",'+ParsePropsUpdatable(props , Keys , state)+','+DispachChild+')';   
  },
- parseTextExp = function(text) {
+ parseTextExp = function(text , state) {
     var regText = /\{(.+?)\}/g;
     var pieces = text.split(regText);
     var matches = text.match(regText);
     var tokens = [];
     pieces.forEach(function (piece) {
         if (matches && matches.indexOf('{' + piece + '}') > -1) {
+            if(!CheckScope(state , piece)){
+                var piece = '_.'+piece;
+            }
             tokens.push(piece);
         } else if (piece) {
             tokens.push('"' + piece + '"');
@@ -74,13 +77,13 @@ var bt = function(name) {
     });
     return tokens.join('+');
  },
- ParsePropsUpdatable = function ParsePropsUpdatable(props , keys) {
+ ParsePropsUpdatable = function ParsePropsUpdatable(props , keys , state) {
    var mainString = JSON.stringify(props);
    for (var j = 0; j < keys.length; j++) {
          var el = keys[j],
              le = props[el];
             if(bt(le)){
-                var parse = parseTextExp(le);
+                var parse = parseTextExp(le , state);
                 mainString = mainString.replace('"'+le+'"' , parse)
             }
    }
@@ -104,7 +107,7 @@ var bt = function(name) {
          var RenderFunction  = 'h("'+tree.type+'",',
              Props           = tree.props,
              Keys            = Object.keys(Props),
-             PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys) : null;
+             PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
              var RenderFunction  = RenderFunction + PropsRoot;
          
          if(Keys.indexOf('c-loop') !== -1){
@@ -117,7 +120,7 @@ var bt = function(name) {
                  NewState.child.push(state)
                  var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , NewState)}})`;
                  delete Props['c-loop'];
-                 return(GenerateSyntax(tree.type , tree.props , Loopchild , Keys))
+                 return(GenerateSyntax(tree.type , tree.props , Loopchild , Keys , state))
          }
 
      var children = tree.children;
