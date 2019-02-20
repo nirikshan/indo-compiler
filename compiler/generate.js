@@ -55,10 +55,10 @@ var bt = function(name) {
  Generate = function Mygenerator(value) {
      var AST            =  applier(value),
          RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
-     return('function(_ , h ){return('+RenderFunction+')}');
+     return('function(_ , cX ){return('+RenderFunction+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys , state) {
-     return 'h("'+type+'",'+ParsePropsUpdatable(props , Keys , state)+','+DispachChild+')';   
+     return 'cX("'+type+'",'+ParsePropsUpdatable(props , Keys , state)+','+DispachChild+')';   
  },
  parseTextExp = function(text , state) {
     var regText = /\{(.+?)\}/g;
@@ -91,7 +91,7 @@ var bt = function(name) {
  },
  CheckScope = function CheckScope(state , ele){
     var exps = state.exp;
-    if(ele.indexOf(exps[1]+'.') !== -1){
+    if(exps && ele.indexOf(exps[1]+'.') !== -1){
          return true;
     }else{
         if(state.child){
@@ -104,8 +104,8 @@ var bt = function(name) {
     return(false);
  },
  GenerateNode = function GenerateNode(tree , state) {
-         var RenderFunction  = 'h("'+tree.type+'",',
-             Props           = tree.props,
+         var RenderFunction  = 'cX("'+tree.type+'",',
+             Props           = tree.props !== undefined?tree.props:{},
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
              var RenderFunction  = RenderFunction + PropsRoot;
@@ -122,6 +122,18 @@ var bt = function(name) {
                  delete Props['c-loop'];
                  return(GenerateSyntax(tree.type , tree.props , Loopchild , Keys , state))
          }
+
+        if(Keys.indexOf('c-if') !== -1){
+              var AttrVal = Props['c-if'];
+              if(!CheckScope(state , AttrVal)){
+                var AttrVal = '_.'+AttrVal;
+              }
+              var NewState = {loop:true , exp:AttrVal , child:[]};
+              NewState.child.push(state)
+              delete Props['c-if'];
+              var condition = AttrVal+` && `+GenerateNode(tree , NewState)+``;
+              return(GenerateSyntax(tree.type , tree.props , condition , Keys , state))
+        }
 
      var children = tree.children;
          RenderFunction = RenderFunction +',';
