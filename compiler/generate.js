@@ -91,7 +91,7 @@ var bt = function(name) {
  },
  CheckScope = function CheckScope(state , ele){
     var exps = state.exp;
-    if(exps && ele.indexOf(exps[1]+'.') !== -1){
+    if(exps !== undefined && exps.length > 0 && exps[1] && exps[1]+'.' === ele.substr(0,(exps[1]+'.').length)){
          return true;
     }else{
         if(state.child){
@@ -113,9 +113,11 @@ var bt = function(name) {
          if(Keys.indexOf('c-loop') !== -1){
                  var AttrVal    = Props['c-loop'].split('>>'),
                      LoopPrefix = AttrVal[0];
-                 if(!state.loop){
+
+                 if(!CheckScope(state , LoopPrefix)){
                     var LoopPrefix = '_.'+LoopPrefix;
                  }
+
                  var NewState = {loop:true , exp:AttrVal , child:[]};
                  NewState.child.push(state)
                  var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , NewState)}})`;
@@ -128,10 +130,10 @@ var bt = function(name) {
               if(!CheckScope(state , AttrVal)){
                 var AttrVal = '_.'+AttrVal;
               }
-              var NewState = {loop:true , exp:AttrVal , child:[]};
+              var NewState = {loop:true , exp: Array.isArray(AttrVal) ? AttrVal:[]  , child:[]};
               NewState.child.push(state)
               delete Props['c-if'];
-              var condition = AttrVal+` && `+GenerateNode(tree , NewState)+``;
+              var condition = AttrVal+`?`+GenerateNode(tree, NewState)+':false';
               return(GenerateSyntax(tree.type , tree.props , condition , Keys , state))
         }
 
@@ -150,9 +152,6 @@ var bt = function(name) {
                          if(bt(ele)){
                            var ele = ele.replace(/}|{/g, '');
                            if(state.loop){
-                                var exps = state.exp;
-                                //console.log(ele.indexOf(exps[1]+'.') == -1 , exps , ele , !CheckScope(state , ele))
-                                //if(ele.indexOf(exps[1]+'.') == -1 ){
                                 if(!CheckScope(state , ele)){
                                     var ele = '_.'+ele;
                                 }
