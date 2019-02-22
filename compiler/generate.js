@@ -93,6 +93,8 @@ var bt = function(name) {
     var exps = state.exp;
     if(exps !== undefined && exps.length > 0 && exps[1] && exps[1]+'.' === ele.substr(0,(exps[1]+'.').length)){
          return true;
+    }else if(exps !== undefined && exps.indexOf(ele.trim()) !== -1){
+        return true;
     }else{
         if(state.child){
             var NewState = state.child;
@@ -112,7 +114,27 @@ var bt = function(name) {
          
          if(Keys.indexOf('c-loop') !== -1){
                  var AttrVal    = Props['c-loop'].split('>>'),
-                     LoopPrefix = AttrVal[0];
+                     LoopPrefix = AttrVal[0],
+                     LastIndex  = AttrVal.length - 1;
+                     scopeVar   = AttrVal[LastIndex],
+                     LoopHead   = AttrVal[1]; 
+
+
+                    if(scopeVar.indexOf(')') !== -1 && scopeVar.indexOf('(') !== -1){
+                        var Splice = scopeVar.match(/\((.*?)\)/)[1]; 
+                        if(Splice.indexOf(',') !== -1){
+                            AttrVal.splice(LastIndex, 1);
+                            var chunk   = Splice.split(','),
+                                AttrVal = AttrVal.concat(chunk);
+                        }else{
+                            AttrVal.splice(LastIndex, 1);
+                            var AttrVal = AttrVal.concat(Splice)
+                        }
+                    }else if(scopeVar.indexOf(',') !== -1){
+                        AttrVal.splice(LastIndex, 1);
+                        var chunk   = scopeVar.split(','),
+                            AttrVal = AttrVal.concat(chunk);
+                    }
 
                  if(!CheckScope(state , LoopPrefix)){
                     var LoopPrefix = '_.'+LoopPrefix;
@@ -120,21 +142,21 @@ var bt = function(name) {
 
                  var NewState = {loop:true , exp:AttrVal , child:[]};
                  NewState.child.push(state)
-                 var Loopchild = LoopPrefix+`.map(`+AttrVal[1]+`=>{ return ${GenerateNode(tree.children[0] , NewState)}})`;
+                 var Loopchild = LoopPrefix+`.map(`+LoopHead+`=>{ return ${GenerateNode(tree.children[0] , NewState)}})`;
                  delete Props['c-loop'];
                  return(GenerateSyntax(tree.type , tree.props , Loopchild , Keys , state))
          }
 
         if(Keys.indexOf('c-if') !== -1){
-              var AttrVal = Props['c-if'];
-              if(!CheckScope(state , AttrVal)){
+                var AttrVal = Props['c-if'];
+                if(!CheckScope(state , AttrVal)){
                 var AttrVal = '_.'+AttrVal;
-              }
-              var NewState = {loop:true , exp: Array.isArray(AttrVal) ? AttrVal:[]  , child:[]};
-              NewState.child.push(state)
-              delete Props['c-if'];
-              var condition = AttrVal+`?`+GenerateNode(tree, NewState)+':false';
-              return(GenerateSyntax(tree.type , tree.props , condition , Keys , state))
+                }
+                var NewState = {loop:true , exp: Array.isArray(AttrVal) ? AttrVal:[]  , child:[]};
+                NewState.child.push(state)
+                delete Props['c-if'];
+                var condition = AttrVal+`?`+GenerateNode(tree, NewState)+':false';
+                return(GenerateSyntax(tree.type , tree.props , condition , Keys , state))
         }
 
      var children = tree.children;
