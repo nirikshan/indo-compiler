@@ -13,19 +13,105 @@
 </body>
 <script>
 
-    var value = `<div>  
-        <p>{name}</p>
-        <ul c-loop='data>>a'>
+    // var value = `<div>  
+    //     <p c-if='name'>{name}</p>
+    //     <ul c-loop='data>>a'>
+    //     <li class='my-list'>
+    //             <h1 class='{me} i am {name} and {a.name} finally {max.name}'>{a.name} - and okkz  {a.id}</h1> 
+    //             <ul c-loop='a.all>>c' id='myid{aaa}'>
+    //                 <li>
+    //                   <b>{c.id} sdsd {c.type} sdsdf {name} dasssss asdddddddd {a.name}</b>  
+    //                   <ul c-loop='c.all>>d'>
+    //                      <li class='{name} - {d.name} and {c.name} and {a.name}'>
+    //                         <b>{name} - {d.name} and {c.name} and {a.name}</b> 
+    //                         <ul c-loop='d.all>>e'>
+    //                             <li>
+    //                                {name} - {d.name} and {c.name} and {a.name} and {e.name}
+    //                                <div c-if='d.name'>
+    //                                 {name} - {kk.name.indo.data}  - {a.name}
+    //                               </div>
+    //                             </li>
+    //                         </ul>       
+    //                      </li>
+    //                   </ul>
+    //                 </li>
+    //             </ul>
+    //         </li>
+    //     </ul>
+    //     <p>{name}</p>
+    // </div>`;
+
+    // var value = `<div>
+    //         <div c-if='is'>
+    //           <input type='text' c-input='changeName' placeholder='fname'>
+    //         </div>
+    //          <button c-click='addItems'>+</button>
+    //          <input type='checkbox' c-input='changeIf'>
+    //         <button c-click='del'>-</button>
+    //         <ul c-loop='data>>a'>
+    //           <li class='{a.name} and {name} and {Lname}'>
+    //             <b>{a.name} - {name} - {Lname}</b>
+    //             <div cl-if='a.render'>
+    //               {name}
+    //             </div>
+    //           </li>
+    //         </ul>  
+    // </div>`
+
+
+   //  var value = `<ul c-if='show' c-loop='keys.data>>a'>
+   //      <li c-if='a.state'>
+   //         <h1>{a.name}</h1>
+   //         <ul c-loop='a.interested>>b'>
+   //            <li c-if='b.state'>
+   //              {b.name}
+   //              <ul c-loop='b.type>>c'>
+   //                 <li>
+   //                     {c.name} - {a.name}
+   //                     <ul c-loop='c.type>>d'>
+   //                       <li> {d.with}</li>
+   //                     </ul>
+   //                 </li>
+   //              </ul>
+   //            </li>
+   //         </ul>
+   //     </li>
+   // </ul>`
+
+//    var value = `<div class="container">
+//        <b style="margin-left:40%;">{total}  item on list</b>
+//         <div class="toplayer">
+//             <input type="text" class="ItemName" c-run="ItemName">
+//             <button cl-click="add" class="addBtn">Add</button>
+//         </div>
+//         <div class="todoStore">
+//             <ul c-loop="TodoStore>>a">
+//                 <li class="todoItem" c-click="isdone">
+//                     <div class="todoName">{a.id} ) {a.name}</div>
+//                     <span class="todoRemove" c-click="remove" id="{a.id}">X</span>
+//                 </li>
+//             </ul>
+//         </div>
+//     </div>`
+
+var value = `<div>  
+        <p c-if='name'>{name}</p>
+        <ul c-loop='data>>a,mainindex'>
         <li class='my-list'>
-                <h1 class='i am {name} and {a.name}'>{a.name} - and okkz  {a.id}</h1> 
-                <ul c-loop='a.all>>c' id='myid'>
+                <h1 class='{me} i am {name} and {a.name} finally {max.name} and {mainindex}'>{a.name} - and okkz  {a.id}</h1> 
+                <ul c-loop='a.all>>c,ind' id='myid{aaa}'>
                     <li>
                       <b>{c.id} sdsd {c.type} sdsdf {name} dasssss asdddddddd {a.name}</b>  
-                      <ul c-loop='c.all>>d'>
-                         <li>
+                      <ul c-loop='c.all>>(d,miendex)'>
+                         <li class='{name} - {d.name} and {c.name} and {a.name}'>
                             <b>{name} - {d.name} and {c.name} and {a.name}</b> 
-                            <ul c-loop='d.all>>e'>
-                              <li>{name} - {d.name} and {c.name} and {a.name} and {e.name}</li>
+                            <ul c-loop='d.all>>(e,eindex)'>
+                                <li class='{mainindex} - {eindex}'>
+                                   {name} - {d.name} and {c.name} and {a.name} and {e.name} -- {ind} -- {miendex} -- {eindex}
+                                   <div c-if='d.name'>
+                                    {name} - {k.name.info.data} - {eindex} = {miendex}
+                                  </div>
+                                </li>
                             </ul>    
                          </li>
                       </ul>
@@ -35,8 +121,16 @@
         </ul>
         <p>{name}</p>
     </div>`;
-
    
+
+// var value = `<div>  
+//         <ul c-loop='data>>aaa,mainindex'>
+//             <li class='my-list'>
+//                 {mainindex}
+//             </li>
+//         </ul>
+//     </div>`;
+
 
   
    var datax = Generate(value)
