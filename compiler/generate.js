@@ -1,4 +1,7 @@
-var bt = function(name) {
+var StateCollector = {
+    UID:0
+ },
+ bt = function(name) {
     return (/\{(.*)\}/.test(name));
  },
  cs = function(a) {
@@ -105,8 +108,22 @@ var bt = function(name) {
     }
     return(false);
  },
+ Ucfirst = function(string) 
+ {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+ },
  GenerateNode = function GenerateNode(tree , state) {
-         var RenderFunction  = 'cX("'+tree.type+'",',
+         var ElementName = tree.type;
+         if(ElementName.substr(0,2) == 'c-'){
+            ElementName  = ElementName.substr(2)
+            StateCollector.UID = StateCollector.UID + 1; 
+            var id = 'c-' + ElementName + '-' + StateCollector.UID;
+            tree.props['c-id'] = id;
+            ElementName = Ucfirst(tree.type.substr(2))+'.view';
+         }else{
+            ElementName = '"'+tree.type+'"'; 
+         };
+         var RenderFunction  = 'cX('+ElementName+',',
              Props           = tree.props !== undefined?tree.props:{},
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
