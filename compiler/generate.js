@@ -1,39 +1,30 @@
-var bt = function(name) {
+var StyleCollectionBag = [],
+ bt = function(name) {
     return (/\{(.*)\}/.test(name));
  },
- cs = function(a) {
-     var d = [],
-         le = a.length,
-         pos = le,
-         init = 0;
-     for (var i = init; i < pos; i++) {
-         var start = a.indexOf('{'),
-             end = a.indexOf('}');
-         if (start !== -1) {
-             var k = a.substr(init, start);
-                 d.push(quot(k))
-
-                 var k1 = a.substr(start, (end + 1) - start + 1);
-                 d.push(quot(k1));
-         } else {
-             var k = a.substr(0, le);
-             d.push(quot(k));
-             break
-         }
-         var a = a.substr(end + 2, le)
-     }
-     var d = d.filter(item => item.trim() !== '');
-     return (d)
+ cs = function(text) {
+    var regText = /\{(.+?)\}/g;
+    var pieces = text.split(regText);
+    var matches = text.match(regText);
+    var tokens = [];
+    pieces.forEach(function (piece) {
+        if (matches && matches.indexOf('{' + piece + '}') > -1) {
+            tokens.push(quot('{'+piece+'}'));
+        } else if (piece) {
+            tokens.push(quot(piece));
+        }
+    });
+    return tokens.filter(item => item.trim() !== '');
  },
  Neww= function(val) {
    return { type:"text",value:val}  
  },
  quot = function(k) {
-     if(!bt(k)){
-         if(k.indexOf('"') == -1){
-            k = k.trim().length > 0 ? '"'+k+'"' : k;   
-         }
-     }
+        if(!bt(k)){
+            if(k.indexOf('"') == -1){
+                k = k.trim().length > 0 ? '"'+k+'"' : k;   
+            }
+        }
      return(k);
  },
  applier = function(value) {
@@ -55,6 +46,7 @@ var bt = function(name) {
  Generate = function Mygenerator(value) {
      var AST            =  applier(value),
          RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
+        // CLICK_COMMUNICATION_PATHWAY = (StyleCollectionBag);
      return('function(_ , cX ){return('+RenderFunction+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys , state) {
@@ -77,6 +69,9 @@ var bt = function(name) {
     });
     return tokens.join('+');
  },
+ CrunBase = function(Arr) {
+    return JSON.stringify(Arr).replace('"'+Arr[0]+'"' ,Arr[0]);
+ },
  ParsePropsUpdatable = function ParsePropsUpdatable(props , keys , state) {
    var mainString = JSON.stringify(props);
    for (var j = 0; j < keys.length; j++) {
@@ -85,6 +80,19 @@ var bt = function(name) {
             if(bt(le)){
                 var parse = parseTextExp(le , state);
                 mainString = mainString.replace('"'+le+'"' , parse)
+            }
+            if(el == 'c-run'){
+                var AttrVal  =  le,
+                    main  =  AttrVal.indexOf('.') !== -1 ? AttrVal.split('.') : AttrVal;
+                if(Array.isArray(main)){
+                    if(!CheckScope(state , AttrVal)){
+                        main[0] = '_.'+main[0];
+                        AttrVal = main;
+                   }else{
+                       AttrVal = main;
+                   }
+                }//#failing point // very sensative area while using c-run
+                mainString = mainString.replace('"c-run":"'+le+'"' , 'c-run:'+CrunBase(AttrVal))
             }
    }
    return(mainString)
@@ -105,6 +113,27 @@ var bt = function(name) {
     }
     return(false);
  },
+ StyleCollector = function StyleCollector(a) {
+    var props =  a.props,
+    clas  =  props['class'],
+    id    =  props['id'];
+        if(clas && !bt(clas) || id && !bt(id)){
+            if(clas){
+                var type = 'class';
+                StyleCollectionBag.push({
+                [type]:clas
+                })
+            }else{
+                var type = 'id';
+                StyleCollectionBag.push({
+                [type]:id
+                })
+            }
+        }  
+        StyleCollectionBag.push({
+          'tag':a.type
+        });
+ },
  GenerateNode = function GenerateNode(tree , state) {
          var ElementName = tree.type;
          var RenderFunction  = 'cX('+ElementName+',',
@@ -113,6 +142,7 @@ var bt = function(name) {
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
              var RenderFunction  = RenderFunction + PropsRoot;
          
+         StyleCollector(tree)
          if(Keys.indexOf('c-loop') !== -1){
                  var AttrVal    = Props['c-loop'].split('>>'),
                      LoopPrefix = AttrVal[0],
@@ -174,7 +204,7 @@ var bt = function(name) {
                          RenderFunction = RenderFunction + data+quot;
                      }else{
                          if(bt(ele)){
-                           var ele = ele.replace(/}|{/g, '');
+                            var ele = ele.replace(/}|{/g,'');
                            if(state.loop){
                                 if(!CheckScope(state , ele)){
                                     var ele = '_.'+ele;
