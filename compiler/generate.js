@@ -92,7 +92,7 @@ var StyleCollectionBag = [],
                        AttrVal = main;
                    }
                 }//#failing point // very sensative area while using c-run
-                mainString = mainString.replace('"c-run":"'+le+'"' , 'c-run:'+CrunBase(AttrVal))
+                mainString = mainString.replace('"c-run":"'+le+'"' , '"c-run":'+CrunBase(AttrVal))
             }
    }
    return(mainString)
@@ -136,7 +136,7 @@ var StyleCollectionBag = [],
  },
  GenerateNode = function GenerateNode(tree , state) {
          var ElementName = tree.type;
-         var RenderFunction  = 'cX('+ElementName+',',
+         var RenderFunction  = 'cX("'+ElementName+'",',
              Props           = tree.props !== undefined?tree.props:{},
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
