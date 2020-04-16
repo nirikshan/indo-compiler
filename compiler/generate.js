@@ -1,4 +1,5 @@
 var StyleCollectionBag = [],
+ ClickId = 0,
  bt = function(name) {
     return (/\{(.*)\}/.test(name));
  },
@@ -18,6 +19,17 @@ var StyleCollectionBag = [],
  },
  Neww= function(val) {
    return { type:"text",value:val}  
+ },
+ isComponent = function(type){
+    var Name = '"'+type+'"';
+    if(type[0] == type[0].toUpperCase()){
+        ClickId += 1;
+        return [
+            type+'.view( "state" in '+type+' ? '+type+'.state : {}  , cX)',
+            {'c-id':'cl-'+type.toLowerCase()+'-'+ClickId}
+        ]
+    }
+    return [Name , {}];
  },
  quot = function(k) {
         if(!bt(k)){
@@ -50,7 +62,8 @@ var StyleCollectionBag = [],
      return('function(_ , cX ){return('+RenderFunction+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys , state) {
-     return 'cX("'+type+'",'+ParsePropsUpdatable(props , Keys , state)+','+DispachChild+')';   
+     var Name = isComponent(type);
+     return 'cX('+Name[0]+','+ParsePropsUpdatable( Object.assign(props , Name[1]) , Keys , state)+','+DispachChild+')';   
  },
  parseTextExp = function(text , state) {
     var regText = /\{(.+?)\}/g;
@@ -136,8 +149,10 @@ var StyleCollectionBag = [],
  },
  GenerateNode = function GenerateNode(tree , state) {
          var ElementName = tree.type;
-         var RenderFunction  = 'cX("'+ElementName+'",',
-             Props           = tree.props !== undefined?tree.props:{},
+             ElementName = isComponent(ElementName);
+
+         var RenderFunction  = 'cX('+ElementName[0]+',',
+             Props           = tree.props !== undefined ? Object.assign(tree.props , ElementName[1]) : {},
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
              var RenderFunction  = RenderFunction + PropsRoot;
