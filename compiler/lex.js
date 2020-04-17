@@ -202,13 +202,7 @@ function get_tag_attributes(tag_token, state){
 
         }
         increment();
-        
-        var dot_index = attribute_name.indexOf(":");
-        if(dot_index !== -1){
-            var temp = attribute_name.split(":");
-            attribute_value.name = temp[0];
-            attribute_value.meta.args = temp[1];
-        }
+
         attributes[attribute_name] = attribute_value;
     }
     
