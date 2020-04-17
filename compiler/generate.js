@@ -90,6 +90,12 @@ var StyleCollectionBag = [],
    for (var j = 0; j < keys.length; j++) {
          var el = keys[j],
              le = props[el];
+            
+            if(el.indexOf(':') !== -1){
+                var parse = parseTextExp('{'+le+'}' , state);
+                mainString = mainString.replace('"'+le+'"' , parse)
+                mainString = mainString.replace('"'+el+'"' , '"'+el.substr(1,el.length)+'"')
+            }
             if(bt(le)){
                 var parse = parseTextExp(le , state);
                 mainString = mainString.replace('"'+le+'"' , parse)
