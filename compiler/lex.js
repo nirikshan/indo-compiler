@@ -8,13 +8,9 @@ var lexical_analysis = function(template){
     lex_state(state);
     return state.tokens;
 }
-
-
 function lex_state(state){
-
     var str = state.str,
         len = state.str.length;
-
     while(state.current < len){
         if(str.charAt(state.current) !== "<"){
             get_text(state);
@@ -27,24 +23,17 @@ function lex_state(state){
         get_tag(state);
     }
 }
-
-
 function get_text(state){
     var str = state.str,
         len = state.str.length,
         current = state.current;
-
     var tag_or_comment_start_RE = /<\/?(?:[A-Za-z]+\w*)|<!--/ ;
-
     var end_of_txt = str.substring(current).search(tag_or_comment_start_RE);
-
     if(end_of_txt == -1){
-
         state.tokens.push({
             type: 'text',
             value: str.slice(current)
         });
-
         state.current = len;
         return;
     }else if(end_of_txt !== 0){
@@ -54,48 +43,30 @@ function get_text(state){
             type: 'text',
             value: str.slice(current, end_of_txt)
         });
-
         state.current = end_of_txt;
-
     }
-
 }
 
-
 function get_comment(state){
-
     var current = state.current+4,  
         str = state.str,
         len = state.str.length;
-
     var end_of_comment = str.indexOf("-->", current);
-
     if(end_of_comment == -1){
-
         state.tokens.push({
             type: 'comment',
             value: str.slice(current)
         });
-
         state.current = len;
-
     }else{
-
         state.tokens.push({
             type: 'comment',
             value: str.slice(current, end_of_comment)
         });
-
         state.current = end_of_comment+3;
-
     }
-
 }
-
-
-
 function get_tag(state){
-
     var str = state.str,
         len = state.str.length;
 
@@ -116,7 +87,6 @@ function get_tag(state){
         tag_token.tag_self_closing = true;
     }
 }
-
 function get_tag_name(state){
 
     var current = state.current, len = state.str.length, str = state.str, tag_name = '';
@@ -137,10 +107,7 @@ function get_tag_name(state){
     };
     state.tokens.push(tag_token);
     return tag_token;
-
 }
-
-
 
 function get_tag_attributes(tag_token, state){
 
@@ -194,15 +161,13 @@ function get_tag_attributes(tag_token, state){
 
         }
 
-
         while( current < len && char !== quote_type){
-
             attribute_value += char;
             increment();
 
         }
         increment();
-
+    
         attributes[attribute_name] = attribute_value;
     }
     
