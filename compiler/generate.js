@@ -1,6 +1,5 @@
-var StyleCollectionBag = [],
- ClickId = 0,
- bt = function(name) {
+var ClickId = 0,
+ bt = function(name) {//binding Test
     return (/\{(.*)\}/.test(name));
  },
  cs = function(text) {
@@ -22,14 +21,15 @@ var StyleCollectionBag = [],
  },
  isComponent = function(type){
     var Name = '"'+type+'"';
-    if(type[0] == type[0].toUpperCase()){
+    if(type && type.length > 0 && type[0] == type[0].toUpperCase()){
         ClickId += 1;
         return [
-            type+'.view( "state" in '+type+' ? '+type+'.state : {}  , cX)',
-            {'c-id':'cl-'+type.toLowerCase()+'-'+ClickId}
+            'cX.childRender(cX , '+type+' , _  , REPLACE_CALLER_PROPS)',
+            {'c-id':'cl-'+type.toLowerCase()+'-'+ClickId},
+            true  
         ]
     }
-    return [Name , {}];
+    return [Name , {} , false /*This is not component caller*/];
  },
  quot = function(k) {
         if(!bt(k)){
@@ -56,14 +56,23 @@ var StyleCollectionBag = [],
      return(parser(alldata));
  },
  Generate = function Mygenerator(value) {
-     var AST            =  applier(value),
-         RenderFunction =  GenerateNode(AST.children[0] , {loop:false});
-        // CLICK_COMMUNICATION_PATHWAY = (StyleCollectionBag);
-     return('function(_ , cX ){return('+RenderFunction+')}');
+     var CallerFunctionPropsDefination  =  [],
+         LoopCallerFunctionDefination   =  {},
+         AST                            =  applier(value),
+         state                          =  {loop:false},
+         RenderFunction                 =  GenerateNode( CallerFunctionPropsDefination  , LoopCallerFunctionDefination , AST.children[0] , state);
+
+         if(RenderFunction.length > 0){
+            CallerFunctionPropsDefination = CallerFunctionPropsDefination.join('')
+         };
+         
+     return('function(_ , cX ){ '+(
+        CallerFunctionPropsDefination
+     )+' return('+RenderFunction[0]+')}');
  },
  GenerateSyntax = function GenerateSyntax(type , props , DispachChild , Keys , state) {
      var Name = isComponent(type);
-     return 'cX('+Name[0]+','+ParsePropsUpdatable( Object.assign(props , Name[1]) , Keys , state)+','+DispachChild+')';   
+     return 'cX.render('+Name[0]+','+ ParsePropsUpdatable( Object.assign(props , Name[1]) , Keys , state) +' ,' + DispachChild + ')';   
  },
  parseTextExp = function(text , state) {
     var regText = /\{(.+?)\}/g;
@@ -93,8 +102,8 @@ var StyleCollectionBag = [],
             
             if(el.indexOf(':') !== -1){
                 var parse = parseTextExp('{'+le+'}' , state);
-                mainString = mainString.replace('"'+le+'"' , parse)
-                mainString = mainString.replace('"'+el+'"' , '"'+el.substr(1,el.length)+'"')
+                mainString = mainString.replace('"'+le+'"' , parse);
+                mainString = mainString.replace('"'+el+'"' , '"'+el.substr(1,el.length)+'"');
             }
             if(bt(le)){
                 var parse = parseTextExp(le , state);
@@ -116,11 +125,15 @@ var StyleCollectionBag = [],
    }
    return(mainString)
  },
- CheckScope = function CheckScope(state , ele){
+ CheckScope = function CheckScope(state , ele){ // this is not good way of scope tracking inside loop
     var exps = state.exp;
+    // console.log(ele , state)
     if(exps !== undefined && exps.length > 0 && exps[1] && exps[1]+'.' === ele.substr(0,(exps[1]+'.').length)){
          return true;
-    }else if(exps !== undefined && exps.indexOf(ele.trim()) !== -1){
+    }else if(
+        exps !== undefined && exps.indexOf(ele.trim()) !== -1  /*this might cause error of scope indeterment*/
+    ){
+        // console.log(exps , ele , state)
         return true;
     }else{
         if(state.child){
@@ -132,40 +145,32 @@ var StyleCollectionBag = [],
     }
     return(false);
  },
- StyleCollector = function StyleCollector(a) {
-    var props =  a.props,
-    clas  =  props['class'],
-    id    =  props['id'];
-        if(clas && !bt(clas) || id && !bt(id)){
-            if(clas){
-                var type = 'class';
-                StyleCollectionBag.push({
-                [type]:clas
-                })
-            }else{
-                var type = 'id';
-                StyleCollectionBag.push({
-                [type]:id
-                })
-            }
-        }  
-        StyleCollectionBag.push({
-          'tag':a.type
-        });
- },
- GenerateNode = function GenerateNode(tree , state) {
-         var ElementName = tree.type;
-             ElementName = isComponent(ElementName);
-
-         var RenderFunction  = 'cX('+ElementName[0]+',',
+ GenerateNode = function GenerateNode(CallerFunctionPropsDefination , LoopCallerFunctionDefination , tree , state) {
+         var ElementName                    = tree.type;
+             ElementName                    = isComponent(ElementName),
+             HasCallerComponent             = false;
+             ComponentInsideLoop            = false;
+             
+         var RenderFunction  = 'cX.render('+ElementName[0]+',',
              Props           = tree.props !== undefined ? Object.assign(tree.props , ElementName[1]) : {},
              Keys            = Object.keys(Props),
              PropsRoot       = Props !== undefined ? ParsePropsUpdatable(Props , Keys , state) : null;
              var RenderFunction  = RenderFunction + PropsRoot;
-         
-         StyleCollector(tree)
+
+        /*Component inside loop creating own props scope by assigning them to own sharing variable*/
+        // console.log(ElementName[2])
+        if(state.loop && ElementName[2] && 'c-id' in ElementName[1]){
+            HasCallerComponent = true;
+            var PropsVariableName = 'Props_'+ElementName[1]['c-id'].replace(/cl-/g, "").replace(/-/g, "_");
+            RenderFunction = RenderFunction.replace(PropsRoot , PropsVariableName).replace(new RegExp('REPLACE_CALLER_PROPS','g'), PropsVariableName);
+            LoopCallerFunctionDefination[state.AttrName].push('const '+PropsVariableName+'='+PropsRoot+';');
+            // ComponentInsideLoop = true;
+        }
+        
+        
          if(Keys.indexOf('c-loop') !== -1){
-                 var AttrVal    = Props['c-loop'].split('>>'),
+                 var AttrName   = Props['c-loop'],
+                     AttrVal    = AttrName.split('>>'),
                      LoopPrefix = AttrVal[0],
                      LastIndex  = AttrVal.length - 1,
                      scopeVar   = AttrVal[LastIndex],
@@ -192,24 +197,53 @@ var StyleCollectionBag = [],
                     var LoopPrefix = '_.'+LoopPrefix;
                  }
 
-                 var NewState = {loop:true , exp:AttrVal , child:[]};
+                 var NewState = {loop:true , exp:AttrVal , child:[] , AttrName};
                  NewState.child.push(state);
+                 
+                 LoopCallerFunctionDefination[AttrName] = [];
                  LoopHead = scopeVar.indexOf(')') !== -1 && scopeVar.indexOf('(') !== -1 ? LoopHead.match(/\((.*?)\)/)[1] : LoopHead;
-                 var Loopchild = LoopPrefix+`.map(function(${LoopHead}){ return ${GenerateNode(tree.children[0] , NewState)}})`;
+                 var LoopedSyntax = GenerateNode( CallerFunctionPropsDefination , LoopCallerFunctionDefination , tree.children[0] , NewState);
+
+                 var Loopchild = LoopPrefix+`.map(function(${LoopHead}){ 
+                      `+(function() {
+                                if(
+                                    AttrName in LoopCallerFunctionDefination && 
+                                    LoopCallerFunctionDefination[AttrName] !== undefined && 
+                                    LoopCallerFunctionDefination[AttrName].length > 0  
+                                ){
+                                        return LoopCallerFunctionDefination[AttrName].join('');
+                                }
+                                return '';
+                      }())+`
+                      return( ${LoopedSyntax[0]} )
+                 })`;
+
+
                  delete Props['c-loop'];
-                 return(GenerateSyntax(tree.type , tree.props , Loopchild , Keys , state))
-         }
+                 return([
+                    GenerateSyntax(tree.type , tree.props , Loopchild , Keys , state),
+                    CallerFunctionPropsDefination,
+                    HasCallerComponent
+                 ])
+        }
 
         if(Keys.indexOf('c-if') !== -1){
                 var AttrVal = Props['c-if'];
                 if(!CheckScope(state , AttrVal)){
-                var AttrVal = '_.'+AttrVal;
+                    var AttrVal = '_.'+AttrVal;
                 }
                 var NewState = {loop:true , exp: Array.isArray(AttrVal) ? AttrVal:[]  , child:[]};
                 NewState.child.push(state)
                 delete Props['c-if'];
-                var condition = AttrVal+`?`+GenerateNode(tree, NewState)+':false';
-                return(GenerateSyntax(tree.type , tree.props , condition , Keys , state))
+                var RenderFunction    =  GenerateNode(CallerFunctionPropsDefination , LoopCallerFunctionDefination ,  tree, NewState),
+                    condition         =  '(' + AttrVal+` ? `+ RenderFunction[0] +' : false ' + ')',
+                    ConditionalSyntax =  GenerateSyntax(tree.type , tree.props , condition , Keys , state);
+                // console.log(condition , '---------------------------------------------------------   ', ConditionalSyntax)
+                return([
+                    condition,
+                    CallerFunctionPropsDefination,
+                    HasCallerComponent
+                ])
         }
 
      var children = tree.children;
@@ -219,10 +253,10 @@ var StyleCollectionBag = [],
                  var len  = children.length;
                  for (var i = 0; i < len; i++) {
                      var ele   =  children[i],
-                         quot  = ((len-1) !== i) ? ',' :'';
+                         quot  = ((len-1) !== i) ? ',' : '';
                      if(typeof(ele) == 'object'){
-                         var data  =  GenerateNode(ele , state);
-                         RenderFunction = RenderFunction + data+quot;
+                         var data  =  GenerateNode(CallerFunctionPropsDefination  , LoopCallerFunctionDefination , ele , state);
+                         RenderFunction = RenderFunction + data[0] + quot;
                      }else{
                          if(bt(ele)){
                             var ele = ele.replace(/}|{/g,'');
@@ -243,7 +277,20 @@ var StyleCollectionBag = [],
              RenderFunction = RenderFunction + tree+',';
          }
          
-       
+        //  console.log(state)
+         if('loop' in state && !state.loop && ElementName.length > 0 && ElementName[2]){
+            HasCallerComponent = true;
+            var PropsVariableName = 'Props_'+ElementName[1]['c-id'].replace(/cl-/g, "").replace(/-/g, "_");
+            RenderFunction = RenderFunction.replace(PropsRoot , PropsVariableName).replace(new RegExp('REPLACE_CALLER_PROPS','g'), PropsVariableName);
+            CallerFunctionPropsDefination.push('const '+PropsVariableName+'='+PropsRoot+';');
+         }
+
          RenderFunction = RenderFunction + ')';
-         return(RenderFunction);
+
+         return([
+             RenderFunction,
+             CallerFunctionPropsDefination,
+             HasCallerComponent,
+             LoopCallerFunctionDefination
+          ]);
     };
