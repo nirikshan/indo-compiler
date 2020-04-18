@@ -1,315 +1,90 @@
-# Indo-Compiler For Click.js
+# Indo-Compiler For Click.cl
+
 
 
 HTML:--
 
 ```html
-   <ul id='main'>
-      <li class='my-list'>
-            <h1>{a.name} -  {a.id}</h1> 
-            <ul>
-                <li>
-                 <b>{c.id}  {c.type}</b>  
-                </li>
-            </ul>
-        </li>
-    </ul> 
+   <div>
+      <ul c-loop='main>>a'>
+         <ul c-loop='a.main>>a'>
+             <li>{a.name}</li>
+         </ul>
+      </ul>
+  </div>
 ```
    
-   
-##AST:-
+#Output :-
 
-```bash
-{
-   "type":"root",
-   "children":[
-      {
-         "type":"ul",
-         "props":{
-            "id":"main",
-            "class":"mainList"
-         },
-         "children":[
-            {
-               "type":"li",
-               "props":{
-                  "class":"my-list"
-               },
-               "children":[
-                  {
-                     "type":"h1",
-                     "props":{
-
-                     },
-                     "children":[
-                        "{a.name} -  {a.id}"
-                     ]
-                  },
-                  {
-                     "type":"ul",
-                     "props":{
-
-                     },
-                     "children":[
-                        {
-                           "type":"li",
-                           "props":{
-
-                           },
-                           "children":[
-                              {
-                                 "type":"b",
-                                 "props":{
-
-                                 },
-                                 "children":[
-                                    "{c.id}  {c.type}"
-                                 ]
-                              }
-                           ]
-                        }
-                     ]
-                  }
-               ]
-            }
-         ]
-      }
-   ]
+```js
+function view(_, cX) {
+    return (
+        cX.render("div", {}, 
+            cX.render("ul", {}, 
+                _.main.map(function(a) {
+                    return (
+                        cX.render("ul", {}, 
+                                a.main.map(function(a) {
+                                     return (cX.render("li", {}, a.name))
+                                })
+                        )
+                    )
+                })
+            )
+        )
+    )
 }
-```
-
-#Type of Render Function I am trying to get :-
-
-```
-m(
-  "ul",
-  { id: "main" },
-    m(
-    "li",
-    { class: "my-list" },
-    render("h1", null, a.name, " -  ", a.id),
-      m(
-      "ul",
-      {},
-        m(
-        "li",
-        {},
-        m("b", null, c.id, "a ", c.type,"sss")
-      )
-    )
-  )
-);
 ``` 
-
-# My output:-
-
-```
-m("ul",
-   {"id": "main", "class": "mainList"},
-   m("li", 
-     {"class": "my-list"}, 
-     m("h1",
-      {},
-      {a.name},
-      "-", 
-      {a.id}),
-           m("ul",
-             {},
-              m("li",
-               {},
-               m("b", {} , {c.id}, "a ",{c.type}, "sss")
-              )
-           )
-       )
-    )
-```
-# c-loop directive (c-loop='data>>c'):-
-
-```
- m("ul",
-   {"id": "main", "class": "mainList"},
-   m("li", 
-     {"class": "my-list"}, 
-     m("h1",
-      {},
-      {a.name},
-      "-", 
-      {a.id}),
-           m("ul",
-             {},
-             data.forEach(function(c){
-                   return m("li",
-                            {},
-                            m("b", {} , {c.id}, "a ",{c.type}, "sss")
-                           )
-             })
-           )
-       )
-    )
- 
-```
-
-# Maintained state scope in loop prefix :
-
-```
-     data.map(a=>{
-        a.data.map(a=>{
-        
-        })
-     })
-     
-     to 
-     
-     _.data.map(a=>{
-        a.data.map(a=>{ //not here because it use the variable dispached by parent loop
-         
-        })
-     })
-     
- ```
- 
- # Final Result
- 
  
  HTML:-
  
  ```html
-   <div>  
-        <p>{name}</p>
-        <ul c-loop='data>>a'>
-        <li class='my-list'>
-                <h1 class='{me} i am {name} and {a.name} finally {max.name}'>{a.name} - and okkz  {a.id}</h1> 
-                <ul c-loop='a.all>>c' id='myid{aaa}'>
-                    <li>
-                      <b>{c.id} sdsd {c.type} sdsdf {name} dasssss asdddddddd {a.name}</b>  
-                      <ul c-loop='c.all>>d'>
-                         <li class='{name} - {d.name} and {c.name} and {a.name}'>
-                            <b>{name} - {d.name} and {c.name} and {a.name}</b> 
-                            <ul c-loop='d.all>>e'>
-                              <li>{name} - {d.name} and {c.name} and {a.name} and {e.name}</li>
-                            </ul>    
-                         </li>
-                      </ul>
-                    </li>
-                </ul>
-            </li>
-        </ul>
-        <p>{name}</p>
-    </div>
-    
+ <div>
+    <Click :title='name'/> 
+    <Click title='This is best'/>  
+    <ul c-loop='main>>a'>
+        <Click :title='a.name' :map='hey'/>
+    </ul>
+</div>
 ```
 
-RenderFunction Generated by Indo-compiler:-
+Output Generated by Indo-compiler:-
 
 ```javascript
-function(_, h) {
-  return h(
-    "div",
-    {},
-    h("p", {}, _.name),
-    h(
-      "ul",
-      {},
-      _.data.map(function(a) {
-        return h(
-          "li",
-          {
-            class: "my-list"
-          },
-          h(
-            "h1",
-            {
-              class:
-                _.me +
-                " i am " +
-                _.name +
-                " and " +
-                a.name +
-                " finally " +
-                _.max.name
-            },
-            a.name,
-            "- and okkz  ",
-            a.id
-          ),
-          h(
-            "ul",
-            {
-              id: "myid" + _.aaa
-            },
-            a.all.map(function(c) {
-              return h(
-                "li",
-                {},
-                h(
-                  "b",
-                  {},
-                  c.id,
-                  "sdsd ",
-                  c.type,
-                  "sdsdf ",
-                  _.name,
-                  "dasssss asdddddddd ",
-                  a.name
-                ),
-                h(
-                  "ul",
-                  {},
-                  c.all.map(function(d) {
-                    return h(
-                      "li",
-                      {
-                        class:
-                          _.name +
-                          " - " +
-                          d.name +
-                          " and " +
-                          c.name +
-                          " and " +
-                          a.name
-                      },
-                      h(
-                        "b",
-                        {},
-                        _.name,
-                        "- ",
-                        d.name,
-                        "and ",
-                        c.name,
-                        "and ",
-                        a.name
-                      ),
-                      h(
-                        "ul",
-                        {},
-                        d.all.map(function(e) {
-                          return h(
-                            "li",
-                            {},
-                            _.name,
-                            "- ",
-                            d.name,
-                            "and ",
-                            c.name,
-                            "and ",
-                            a.name,
-                            "and ",
-                            e.name
-                          );
-                        })
-                      )
-                    );
-                  })
-                )
-              );
-            })
-          )
-        );
-      })
-    ),
-    h("p", {}, _.name)
-  );
+function view(_, cX) {
+    const Props_click_1 = {
+        "title": _.name,
+        "c-id": "cl-click-1"
+    };
+    const Props_click_2 = {
+        "title": "This is best",
+        "c-id": "cl-click-2"
+    };
+    return (
+        cX.render("div", {}, 
+                   cX.render(
+                       cX.childRender(cX, Click, _ , Props_click_1), 
+                       Props_click_1, 
+                    ), 
+                    cX.render(
+                        cX.childRender(cX, Click, _ , Props_click_2),Props_click_2, ), 
+                        cX.render("ul", {}, 
+                            _.main.map(function(a) {
+                                const Props_click_3 = {
+                                    "title": a.name,
+                                    "map": _.hey,
+                                    "c-id": "cl-click-3"
+                                };
+                                return (
+                                    cX.render(
+                                    cX.childRender(cX, Click, _, Props_click_3), 
+                                    Props_click_3, 
+                                    )
+                                )
+                            })
+                        )
+                    )
+    )
 }
-
 ```
 
