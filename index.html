@@ -6,10 +6,13 @@
    <script type="text/javascript" src="compiler/lex.js"></script>
    <script type="text/javascript" src="compiler/parser.js"></script>
    <script type="text/javascript" src="compiler/generate.js"></script>
+
+
    <!-- <script type="text/javascript" src="compiler/indo-compiler.js"></script> -->
 </head>
-<body>
-	<div id="root"></div>
+<body class="CodeBeautifier">
+  
+  <pre id='src' ></pre>
 </body>
 <script>
 
@@ -111,7 +114,7 @@ var value = `<div>
                                    <div c-if='d.name'>
                                     {name} - {k.name.info.data} - {eindex} = {miendex}
                                   </div>
-                                </li>
+                                </li>  
                             </ul>    
                          </li>
                       </ul>
@@ -123,18 +126,87 @@ var value = `<div>
     </div>`;
    
 
-// var value = `<div>  
-//         <ul c-loop='data>>aaa,mainindex'>
-//             <li class='my-list'>
-//                 {mainindex}
-//             </li>
-//         </ul>
+// var value = `<div>
+//       <div>
+//          <Click c-if='title' :title='title'/>  
+//       </div>
+//       <Click  title='hey this is me nirikshan bhusal'/>
+//    </div>`;
+
+
+// var value = ` <div>
+//     <Click c-if='title' :title='title'/>
 //     </div>`;
 
 
+var value =  `<div>
+      <Click :title='name'/>  
+      <ul c-loop='olo>>a'>
+          <li>
+            <h1>{b.name} {a.name} {outer}</h1>
+            <Click :title='a.name' :map='hey'/>
+            <ul c-loop='a.innerMain>>b'>
+                <li>
+                   <h1>{b.name} {a.name} {outer}</h1>
+                   <Click title='Inner' :map='olo'/>
+                   <ul c-loop='b.name>>c'>
+                        <li>
+                           <h2>{a.name} {b.name} {c.name} {olo} {a.innerMain}</h2>
+                           <Click title='Inner' :map='olo'/>
+                           <ul c-loop='fromOut>>x'>
+                              <li>
+                                <Click :title='a.name + b.name' :data='x'/>
+                                  <ul c-loop='x.main>>y'>
+                                      <li>
+                                        <Click :title='a.name + b.name' :data='x'/>
+                                        <ul c-loop='y.main>>z'>
+                                            <li>
+                                              <Click :title='a.name + b.name' :data='x' :main='fromOut'/>
+                                              <h1>
+                                                  {a.name}
+                                                  {b.name.main.name.name}
+                                                  {c.name.health.name.main.uname.cname.carry}
+                                                  {d.name.last.main.uname}
+                                                  {x.name.last.mama.baba.mom.dad.brp.sis.me.gf.wife}
+                                                  {y.name.last.oooa.lala}  
+                                              </h1>
+                                            </li>
+                                        </ul>
+                                      </li>
+                                  </ul>
+                              </li>
+                           </ul>
+                        </li>
+                   </ul>
+                </li>
+            </ul>
+          </li>
+      </ul>
+  </div>`
+
+
+// var value =  `<div>
+     
+//       <ul c-loop='main>>a'>
+//           <li>
+//             <ul c-loop='a.innerMain >> b'>
+//                 <li>
+//                   <ul c-loop='b.inner2Main >> a'>
+//                     <ul c-loop='a.innerMain >> a'>
+//                         <h1>{a.name}</h1>
+//                     </ul>
+//                   </ul>
+//                 </li>
+//             </ul>
+//           </li>
+//       </ul>
+//   </div>`
   
    var datax = Generate(value)
-   console.log(datax)
+  console.log(datax)
+  
+
+  document.getElementById('src').innerHTML = datax.replace(new RegExp('{' , 'g') , '\n{\n');
 
 </script>
 </html>
