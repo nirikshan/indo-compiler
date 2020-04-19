@@ -6,16 +6,23 @@
    <script type="text/javascript" src="compiler/lex.js"></script>
    <script type="text/javascript" src="compiler/parser.js"></script>
    <script type="text/javascript" src="compiler/generate.js"></script>
+   <script src="./run_prettify.js?lang=js&skin=desert"></script>
+
+
+ 
+<script src="./beautify.min.js"></script>
+
+ 
+<script src="./beautify.js"></script>
 
 
    <!-- <script type="text/javascript" src="compiler/indo-compiler.js"></script> -->
 </head>
 <body class="CodeBeautifier">
   
-  <pre id='src' ></pre>
+  <pre class="prettyprint linenums" id='src'  style='overflow: scroll;'></pre>
 </body>
 <script>
-
     // var value = `<div>  
     //     <p c-if='name'>{name}</p>
     //     <ul c-loop='data>>a'>
@@ -140,49 +147,49 @@ var value = `<div>
 
 
 var value =  `<div>
-      <Click :title='name'/>  
-      <ul c-loop='olo>>a'>
-          <li>
+    <Click :title='name' />
+    <ul c-loop='olo>>a'>
+        <li>
             <h1>{b.name} {a.name} {outer}</h1>
-            <Click :title='a.name' :map='hey'/>
+              <Click :title='a.name' :map='hey' c-if='outer'/>
             <ul c-loop='a.innerMain>>b'>
                 <li>
-                   <h1>{b.name} {a.name} {outer}</h1>
-                   <Click title='Inner' :map='olo'/>
-                   <ul c-loop='b.name>>c'>
+                    <h1>{b.name} {a.name} {outer}</h1>
+                    <Click title='Inner' :map='olo' />
+                    <ul c-loop='b.name>>c'>
                         <li>
-                           <h2>{a.name} {b.name} {c.name} {olo} {a.innerMain}</h2>
-                           <Click title='Inner' :map='olo'/>
-                           <ul c-loop='fromOut>>x'>
-                              <li>
-                                <Click :title='a.name + b.name' :data='x'/>
-                                  <ul c-loop='x.main>>y'>
-                                      <li>
-                                        <Click :title='a.name + b.name' :data='x'/>
-                                        <ul c-loop='y.main>>z'>
-                                            <li>
-                                              <Click :title='a.name + b.name' :data='x' :main='fromOut'/>
-                                              <h1>
-                                                  {a.name}
-                                                  {b.name.main.name.name}
-                                                  {c.name.health.name.main.uname.cname.carry}
-                                                  {d.name.last.main.uname}
-                                                  {x.name.last.mama.baba.mom.dad.brp.sis.me.gf.wife}
-                                                  {y.name.last.oooa.lala}  
-                                              </h1>
-                                            </li>
-                                        </ul>
-                                      </li>
-                                  </ul>
-                              </li>
-                           </ul>
+                            <h2>{a.name} {b.name} {c.name} {olo} {a.innerMain}</h2>
+                            <Click title='Inner' :map='olo' />
+                            <ul c-loop='fromOut>>x'>
+                                <li>
+                                    <Click :title='a.name + b.name' :data='x' />
+                                    <ul c-loop='x.main>>y'>
+                                        <li>
+                                            <Click :title='a.name + b.name' :data='x' />
+                                            <ul c-loop='y.main>>z'>
+                                                <li>
+                                                    <Click :title='a.name + b.name' :data='x' :main='fromOut' />
+                                                    <h1>
+                                                        {a.name}
+                                                        {b.name.main.name.name}
+                                                        {c.name.health.name.main.uname.cname.carry}
+                                                        {d.name.last.main.uname}
+                                                        {x.name.last.mama.baba.mom.dad.brp.sis.me.gf.wife}
+                                                        {y.name.last.oooa.lala}  
+                                                    </h1>
+                                                </li>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                            </ul>
                         </li>
-                   </ul>
+                    </ul>
                 </li>
             </ul>
-          </li>
-      </ul>
-  </div>`
+        </li>
+    </ul>
+</div>`
 
 
 // var value =  `<div>
@@ -203,10 +210,10 @@ var value =  `<div>
 //   </div>`
   
    var datax = Generate(value)
-  console.log(datax)
+  // console.log(datax)
   
 
-  document.getElementById('src').innerHTML = datax.replace(new RegExp('{' , 'g') , '\n{\n');
+  document.getElementById('src').innerHTML =  js_beautify(datax , {});
 
 </script>
 </html>
