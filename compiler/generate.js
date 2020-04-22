@@ -26,10 +26,11 @@ var ClickId = 0,
         var Name = '"' + type + '"';
         if (type && type.length > 0 && type[0] == type[0].toUpperCase()) {
             ClickId += 1;
+            var C_ID = 'cl-' + type.toLowerCase() + '-' + ClickId;
             return [
-                'cX.childRender(cX , ' + type + ' , _  , REPLACE_CALLER_PROPS)',
+                'cX.childRender(cX , ' + type + ' ,"'+C_ID+'"  , REPLACE_CALLER_PROPS)',
                 {
-                    'c-id': 'cl-' + type.toLowerCase() + '-' + ClickId
+                    'c-id': C_ID
                 },
                 true
             ]
