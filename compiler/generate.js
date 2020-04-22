@@ -22,10 +22,12 @@ var ClickId = 0,
             value: val
         }
     },
-    isComponent = function (type) {
+    isComponent = function (type , ConditionalNode = false) {
         var Name = '"' + type + '"';
         if (type && type.length > 0 && type[0] == type[0].toUpperCase()) {
-            ClickId += 1;
+            if(!ConditionalNode){
+                ClickId += 1;
+            }
             var C_ID = 'cl-' + type.toLowerCase() + '-' + ClickId;
             return [
                 'cX.childRender(cX , ' + type + ' ,"'+C_ID+'"  , REPLACE_CALLER_PROPS)',
@@ -141,7 +143,6 @@ var ClickId = 0,
             if (testBit && 'exp' in state) {
                 var exp = state.exp,
                     parChar = exp[exp.length - 1];
-                console.log(exp, parChar)
                 if (parChar == testBit) {
                     return (true);
                 } else {
@@ -163,9 +164,9 @@ var ClickId = 0,
         }
         return false;
     },
-    GenerateNode = function GenerateNode(CallerFunctionPropsDefination, LoopCallerFunctionDefination, tree, state) {
+    GenerateNode = function GenerateNode(CallerFunctionPropsDefination, LoopCallerFunctionDefination, tree, state , ConditionalNode = false) {
         var ElementName = tree.type;
-        ElementName = isComponent(ElementName),
+        ElementName = isComponent(ElementName , ConditionalNode),
             HasCallerComponent = false;
         ComponentInsideLoop = false;
 
@@ -173,19 +174,19 @@ var ClickId = 0,
             Props = tree.props !== undefined ? Object.assign(tree.props, ElementName[1]) : {},
             Keys = Object.keys(Props),
             PropsRoot = Props !== undefined ? ParsePropsUpdatable(Props, Keys, state) : null;
-        /* 
-        * var RenderFunction = RenderFunction + PropsRoot; 
-        * 
-        *  Rather then adding whole set of props on render function I want to add only prop that contain click-id because there are other data props that 
-        *  will be rendered with HTML nodes as attribute at the head of sub component during component render at click.cl
-        *     
-        *  Hey Nirikshan If there will be problem in future with component head props or props as data then just remove above comment.
-        * 
-        */ 
-         var RenderFunction = RenderFunction + (
-            "c-id" in Props ? '{"c-id":"'+Props['c-id']+'"}' : PropsRoot 
-         );
-        
+            /* 
+            * var RenderFunction = RenderFunction + PropsRoot; 
+            * 
+            *  Rather then adding whole set of props on render function I want to add only prop that contain click-id because there are other data props that 
+            *  will be rendered with HTML nodes as attribute at the head of sub component during component render at click.cl
+            *     
+            *  Hey Nirikshan If there will be problem in future with component head props or props as data then just remove above comment.
+            * 
+            */ 
+            var RenderFunction = RenderFunction + (
+                "c-id" in Props ? '{"c-id":"'+Props['c-id']+'"}' : PropsRoot 
+            );
+
 
         /*Component inside loop creating own props scope by assigning them to own sharing variable*/
         if (state.loop && ElementName[2] && 'c-id' in ElementName[1]) {
@@ -247,8 +248,8 @@ var ClickId = 0,
                 ) {
                     return LoopCallerFunctionDefination[AttrName].join('');
                 }
-                return '';
-            }()) + `
+                    return '';
+                }()) + `
                       return( ${LoopedSyntax[0]} )
                  })`;
 
@@ -273,9 +274,10 @@ var ClickId = 0,
             };
             NewState.child.push(state)
             delete Props['c-if'];
-            var RenderFunction = GenerateNode(CallerFunctionPropsDefination, LoopCallerFunctionDefination, tree, NewState),
-                condition = '(' + AttrVal + ` ? ` + RenderFunction[0] + ' : false ' + ')',
-                ConditionalSyntax = GenerateSyntax(tree.type, tree.props, condition, Keys, state);
+            var RenderFunction = GenerateNode(CallerFunctionPropsDefination, LoopCallerFunctionDefination, tree, NewState , true),
+                condition = '(' + AttrVal + ` ? ` + RenderFunction[0] + ' : false ' + ')';
+                console.log(RenderFunction)
+                // ConditionalSyntax = GenerateSyntax(tree.type, tree.props, condition, Keys, state);
             // console.log(condition , '---------------------------------------------------------   ', ConditionalSyntax)
             return ([
                 condition,
@@ -315,7 +317,7 @@ var ClickId = 0,
             RenderFunction = RenderFunction + tree + ',';
         }
 
-        //  console.log(state)
+        // loop component scoped data binding 
         if ('loop' in state && !state.loop && ElementName.length > 0 && ElementName[2]) {
             HasCallerComponent = true;
             var PropsVariableName = 'Props_' + ElementName[1]['c-id'].replace(/cl-/g, "").replace(/-/g, "_");
