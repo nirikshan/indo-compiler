@@ -172,7 +172,19 @@ var ClickId = 0,
             Props = tree.props !== undefined ? Object.assign(tree.props, ElementName[1]) : {},
             Keys = Object.keys(Props),
             PropsRoot = Props !== undefined ? ParsePropsUpdatable(Props, Keys, state) : null;
-        var RenderFunction = RenderFunction + PropsRoot;
+        /* 
+        * var RenderFunction = RenderFunction + PropsRoot; 
+        * 
+        *  Rather then adding whole set of props on render function I want to add only prop that contain click-id because there are other data props that 
+        *  will be rendered with HTML nodes as attribute at the head of sub component during component render at click.cl
+        *     
+        *  Hey Nirikshan If there will be problem in future with component head props or props as data then just remove above comment.
+        * 
+        */ 
+         var RenderFunction = RenderFunction + (
+            "c-id" in Props ? '{"c-id":"'+Props['c-id']+'"}' : PropsRoot 
+         );
+        
 
         /*Component inside loop creating own props scope by assigning them to own sharing variable*/
         if (state.loop && ElementName[2] && 'c-id' in ElementName[1]) {
